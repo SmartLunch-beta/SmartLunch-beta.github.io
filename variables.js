@@ -1,5 +1,5 @@
 window.APP_CONFIG = {
-  siteName: 'Colegio',
+  siteName: 'San Jose Obrero HH.MM',
   logoUrl: './img/SmartLunch.png',
   footerLogoUrl: './img/SmartLunch.png',
   footerVersion: 'v1.0.1',
