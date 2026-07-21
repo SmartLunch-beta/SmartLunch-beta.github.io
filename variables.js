@@ -2,7 +2,7 @@ window.APP_CONFIG = {
   siteName: 'San Jose Obrero HH.MM',
   logoUrl: './img/SmartLunch.png',
   footerLogoUrl: './img/SmartLunch.png',
-  footerVersion: 'v1.0.1',
+  footerVersion: 'V1.0.0.0',
   modules: [
     { key: 'inicio', label: 'Inicio', url: './index.html' },
     { key: 'favoritos', label: 'Favoritos', url: './favoritos.html' },
