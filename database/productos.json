@@ -21,7 +21,7 @@
     "precio": 3,
     "categoria": "bebida",
     "stock": 25,
-    "imagen": "imagenes/jugonaranja.jpg"
+    "imagen": "imagenes/JugoNaranja.jpg"
   },
   {
     "id": 4,
@@ -61,7 +61,7 @@
     "precio": 2.5,
     "categoria": "snack",
     "stock": 30,
-    "imagen": "imagenes/Galletas.jpg"
+    "imagen": "imagenes/galletas.jpg"
   },
   {
     "id": 9,

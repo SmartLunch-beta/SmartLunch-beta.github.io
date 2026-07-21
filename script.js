@@ -15,12 +15,12 @@ const seedUsers = [
 const seedProducts = [
   { id: 1, nombre: 'Sándwich de pollo', precio: 6, categoria: 'sandwich', stock: 20, imagen: './imagenes/Sandwitch1.jpg', estado: 'activo', activo: true },
   { id: 2, nombre: 'Sándwich Mixto', precio: 5, categoria: 'sandwich', stock: 15, imagen: './imagenes/SandwitchMixto.jpg', estado: 'activo', activo: true },
-  { id: 3, nombre: 'Jugo de naranja', precio: 3, categoria: 'bebida', stock: 25, imagen: './imagenes/jugonaranja.jpg', estado: 'activo', activo: true },
+  { id: 3, nombre: 'Jugo de naranja', precio: 3, categoria: 'bebida', stock: 25, imagen: './imagenes/JugoNaranja.jpg', estado: 'activo', activo: true },
   { id: 4, nombre: 'Gaseosa', precio: 3.5, categoria: 'bebida', stock: 18, imagen: './imagenes/gaseosas2.jpg', estado: 'activo', activo: true },
   { id: 5, nombre: 'Yogurt', precio: 3, categoria: 'bebida', stock: 12, imagen: './imagenes/yogurt.jpg', estado: 'activo', activo: true },
   { id: 6, nombre: 'Pizza personal', precio: 5, categoria: 'snack', stock: 10, imagen: './imagenes/pizza.jpg', estado: 'activo', activo: true },
   { id: 7, nombre: 'Empanada', precio: 4, categoria: 'snack', stock: 14, imagen: './imagenes/empanadas.jpg', estado: 'activo', activo: true },
-  { id: 8, nombre: 'Galletas', precio: 2.5, categoria: 'snack', stock: 30, imagen: './imagenes/Galletas.jpg', estado: 'activo', activo: true },
+  { id: 8, nombre: 'Galletas', precio: 2.5, categoria: 'snack', stock: 30, imagen: './imagenes/galletas.jpg', estado: 'activo', activo: true },
   { id: 9, nombre: 'Manzana', precio: 1, categoria: 'fruta', stock: 40, imagen: './imagenes/manzana.jpg', estado: 'activo', activo: true },
   { id: 10, nombre: 'Platano', precio: 0.5, categoria: 'fruta', stock: 35, imagen: './imagenes/platano.jpg', estado: 'activo', activo: true },
   { id: 11, nombre: 'Granadilla', precio: 0.75, categoria: 'fruta', stock: 22, imagen: './imagenes/granadilla.jpg', estado: 'activo', activo: true }
