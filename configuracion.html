@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <script>
+    (function() {
+      try {
+        const saved = localStorage.getItem('smartLunchTema') || 'claro';
+        const isDark = saved === 'oscuro';
+        document.documentElement.classList.toggle('theme-dark', isDark);
+        document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+        document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+        document.documentElement.style.backgroundColor = isDark ? '#020617' : '#f3f4f6';
+        document.body && (document.body.style.backgroundColor = isDark ? '#020617' : '#f3f4f6');
+      } catch (error) {}
+    })();
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartLunch | Configuración</title>
+  <link rel="stylesheet" href="./style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <aside class="sidebar">
+      <div class="logo"><img src="./img/SmartLunch.png" class="logo-sidebar" alt="SmartLunch"> <span>SmartLunch</span></div>
+      <ul>
+        <li><a href="./index.html" data-module="inicio"></a></li>
+        <li><a href="./favoritos.html" data-module="favoritos"></a></li>
+        <li><a href="./historial.html" data-module="historial"></a></li>
+        <li class="active"><a href="./configuracion.html" data-module="configuracion"></a></li>
+        <li><a href="./intranet.html" data-module="intranet"></a></li>
+        <li><a href="#" data-action="logout" onclick="cerrarSesion(); return false;"></a></li>
+      </ul>
+      <div class="sidebar-footer">
+        <div class="footer-brand">
+          <img class="footer-logo" alt="">
+          <span data-config="siteName"></span>
+        </div>
+        <span class="footer-version" data-config="footerVersion"></span>
+      </div>      
+    </aside>
+
+    <main class="main">
+      <div class="main-content">
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">Tu cuenta</p>
+            <h2>Configuración</h2>
+          </div>
+        </div>
+
+        <div class="config-grid">
+          <article class="card config-hero">
+            <div class="config-avatar" id="avatar-inicial">U</div>
+            <div class="config-user-info">
+              <h3 id="perfil-nombre">-</h3>
+              <p id="perfil-rol">-</p>
+              <p id="perfil-correo">-</p>
+            </div>
+          </article>
+
+          <article class="card config-card">
+            <h3>🎨 Apariencia</h3>
+            <p class="muted-text">Cambia el tema para adaptar la interfaz a tu preferencia.</p>
+            <div class="btn-row">
+              <button class="btn-primary" onclick="cambiarTema('oscuro')">🌙 Oscuro</button>
+              <button class="btn-secondary" onclick="cambiarTema('claro')">☀️ Claro</button>
+            </div>
+          </article>
+
+          <article class="card config-card">
+            <h3>📧 Correo</h3>
+            <form id="form-cambiar-correo" class="form-stack compact-form">
+              <input type="email" id="nuevo-email" placeholder="Nuevo correo" required>
+              <button class="btn-primary" type="submit">Actualizar correo</button>
+            </form>
+          </article>
+
+          <article class="card config-card">
+            <h3>🔐 Contraseña</h3>
+            <form id="form-cambiar-password" class="form-stack compact-form">
+              <input type="password" id="password-actual" placeholder="Contraseña actual" required>
+              <input type="password" id="password-nueva" placeholder="Nueva contraseña" required>
+              <input type="password" id="password-confirmar" placeholder="Confirmar contraseña" required>
+              <button class="btn-primary" type="submit">Cambiar contraseña</button>
+            </form>
+          </article>
+        </div>
+      </section>
+      </div>
+      <footer class="global-footer">
+        <div class="footer-inner">
+          <div class="footer-columns">
+            <div class="footer-col">
+              <h4>Ayuda</h4>
+              <ul>
+                <li><a href="./faq.html">Preguntas frecuentes</a></li>
+                <li><a href="mailto:soporte@smartlunch.example">Contáctanos</a></li>
+              </ul>
+            </div>
+            <div class="footer-col">
+              <h4>Legal</h4>
+              <ul>
+                <li><a href="./terminos.html">Términos y condiciones</a></li>
+                <li><a href="./privacidad.html">Política de privacidad</a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="footer-right">¿Necesitas ayuda inmediata? Escríbenos a <a href="mailto:soporte@smartlunch.example">soporte@smartlunch.example</a></div>
+        </div>
+      </footer>
+
+    </main>
+
+  </div>
+
+  <script src="./variables.js"></script>
+  <script src="./script.js"></script>
+</body>
+</html>

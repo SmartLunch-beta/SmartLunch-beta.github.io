@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <script>
+    (function() {
+      try {
+        const saved = localStorage.getItem('smartLunchTema') || 'claro';
+        const isDark = saved === 'oscuro';
+        document.documentElement.classList.toggle('theme-dark', isDark);
+        document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+        document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+        document.documentElement.style.backgroundColor = isDark ? '#020617' : '#f3f4f6';
+        document.body && (document.body.style.backgroundColor = isDark ? '#020617' : '#f3f4f6');
+      } catch (error) {}
+    })();
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartLunch | Preguntas frecuentes</title>
+  <link rel="stylesheet" href="./style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <aside class="sidebar">
+      <div class="logo"><img src="./img/SmartLunch.png" class="logo-sidebar" alt="SmartLunch"> <span>SmartLunch</span></div>
+      <ul>
+        <li><a href="./index.html" data-module="inicio"></a></li>
+        <li><a href="./favoritos.html" data-module="favoritos"></a></li>
+        <li><a href="./historial.html" data-module="historial"></a></li>
+        <li><a href="./configuracion.html" data-module="configuracion"></a></li>
+        <li><a href="./intranet.html" data-module="intranet"></a></li>
+        <li><a href="#" data-action="logout" onclick="cerrarSesion(); return false;"></a></li>
+      </ul>
+      <div class="sidebar-footer">
+        <div class="footer-brand">
+          <img class="footer-logo" alt="">
+          <span data-config="siteName"></span>
+        </div>
+        <span class="footer-version" data-config="footerVersion"></span>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="main-content">
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Soporte</p>
+              <h2>Preguntas frecuentes</h2>
+            </div>
+          </div>
+          <p class="panel-subtitle">Resuelve las dudas más comunes sobre pedidos, pagos y administración de tu cuenta de forma clara y directa.</p>
+          <div class="section-note">
+            <strong>Consejo:</strong> Usa la barra lateral para navegar desde favoritos hasta administración de tu perfil.
+          </div>
+          <div class="info-grid">
+            <article class="card info-card">
+              <h3>¿Cómo realizo un pedido?</h3>
+              <p>Selecciona los productos que deseas, abre el carrito desde el ícono superior y completa el pago con tarjeta o QR.</p>
+            </article>
+            <article class="card info-card">
+              <h3>¿Puedo cambiar mi orden después de pagar?</h3>
+              <p>Una vez procesado el pago, las modificaciones no son posibles. Si necesitas cancelar, contacta a soporte antes de completar la compra.</p>
+            </article>
+            <article class="card info-card">
+              <h3>¿Cómo administro mis favoritos?</h3>
+              <p>Marca el icono de estrella en cualquier producto para agregarlo a tus favoritos. Puedes revisarlos en la sección "Favoritos".</p>
+            </article>
+            <article class="card info-card">
+              <h3>¿Qué métodos de pago están disponibles?</h3>
+              <p>Puedes pagar con tarjeta de crédito/débito o QR. El recibo mostrará el número de tarjeta parcialmente oculto para mayor seguridad.</p>
+            </article>
+            <article class="card info-card">
+              <h3>¿Dónde veo mi historial de pedidos?</h3>
+              <p>Tu historial está disponible en la pestaña "Historial" en la barra lateral, con fechas y detalles de cada compra.</p>
+            </article>
+          </div>
+        </section>
+      </div>
+      <footer class="global-footer">
+        <div class="footer-inner">
+          <div class="footer-columns">
+            <div class="footer-col">
+              <h4>Ayuda</h4>
+              <ul>
+                <li><a href="./faq.html">Preguntas frecuentes</a></li>
+                <li><a href="mailto:soporte@smartlunch.example">Contáctanos</a></li>
+              </ul>
+            </div>
+            <div class="footer-col">
+              <h4>Legal</h4>
+              <ul>
+                <li><a href="./terminos.html">Términos y condiciones</a></li>
+                <li><a href="./privacidad.html">Política de privacidad</a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="footer-right">¿Necesitas ayuda inmediata? Escríbenos a <a href="mailto:soporte@smartlunch.example">soporte@smartlunch.example</a></div>
+        </div>
+      </footer>
+    </main>
+  </div>
+  <script src="./variables.js"></script>
+  <script src="./script.js"></script>
+</body>
+</html>

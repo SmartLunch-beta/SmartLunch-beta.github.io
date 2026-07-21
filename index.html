@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <style>
+    html.theme-dark { background: #020617; color: #f8fafc; }
+    html.theme-dark body { background: #020617; color: #f8fafc; }
+    html.theme-dark body::before { background: radial-gradient(circle at top left,rgba(96,165,250,.14),transparent 38%); }
+    html.theme-dark .product-card { background: #111827; color: #f8fafc; }
+    html.theme-dark #listaPedidos li { background: #111827; color: #f8fafc; border-color: rgba(255,255,255,.08); }
+    html.theme-dark #listaPedidos li small { color: #cbd5e1; }
+  </style>
+  <script>
+    (function() {
+      try {
+        const saved = localStorage.getItem('smartLunchTema') || 'claro';
+        const isDark = saved === 'oscuro';
+        document.documentElement.classList.toggle('theme-dark', isDark);
+        document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+        document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+        document.documentElement.style.backgroundColor = isDark ? '#020617' : '#f3f4f6';
+        document.body && (document.body.style.backgroundColor = isDark ? '#020617' : '#f3f4f6');
+      } catch (error) {}
+    })();
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartLunch | Inicio</title>
+  <link rel="stylesheet" href="./style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <aside class="sidebar">
+      <div class="logo"><img src="./img/SmartLunch.png" class="logo-sidebar" alt="SmartLunch"> <span>SmartLunch</span></div>
+      <ul>
+        <li class="active"><a href="./index.html" data-module="inicio"></a></li>
+        <li><a href="./favoritos.html" data-module="favoritos"></a></li>
+        <li><a href="./historial.html" data-module="historial"></a></li>
+        <li><a href="./configuracion.html" data-module="configuracion"></a></li>
+        <li><a href="./intranet.html" data-module="intranet"></a></li>
+        <li><a href="#" data-action="logout" onclick="cerrarSesion(); return false;"></a></li>
+      </ul>
+      <div class="sidebar-footer">
+        <div class="footer-brand">
+          <img class="footer-logo" alt="">
+          <span data-config="siteName"></span>
+        </div>
+        <span class="footer-version" data-config="footerVersion"></span>
+      </div>      
+    </aside>
+
+    <main class="main">
+      <div class="main-content">
+      <section class="hero-panel">
+        <div>
+          <p class="eyebrow">Pide cuando quieras</p>
+          <h1>Tu pedido listo en minutos</h1>
+          <p>Haz tus pedidos las 24 horas: sándwiches, bebidas, snacks, frutas y más. Elige, paga de forma segura y recibe rápido — ¡haz tu pedido ahora!</p>
+        </div>
+        <div class="hero-actions">
+          <button id="open-cart" class="cart-button" aria-label="Abrir carrito">
+            <img src="./img/CARRITO.png" alt="Carrito" class="cart-icon">
+            <span class="cart-badge" id="cart-count">0</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="filters-panel">
+        <div class="filter-group">
+          <label for="categoria-select">Categoría</label>
+          <select id="categoria-select">
+            <option value="todos">Todos</option>
+            <option value="sandwich">Sándwiches</option>
+            <option value="bebida">Bebidas</option>
+            <option value="snack">Snacks</option>
+            <option value="fruta">Frutas</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="orden-select">Ordenar</label>
+          <select id="orden-select">
+            <option value="relevancia">Relevancia</option>
+            <option value="precioAsc">Precio menor a mayor</option>
+            <option value="precioDesc">Precio mayor a menor</option>
+          </select>
+        </div>
+        <div class="filter-group range-group">
+          <label>Rango de precio</label>
+          <div class="price-range">
+            <div class="price-range-inputs">
+              <input type="number" id="precio-min" placeholder="Mínimo" min="0" step="0.50">
+              <span>–</span>
+              <input type="number" id="precio-max" placeholder="Máximo" min="0" step="0.50">
+            </div>
+          </div>
+        </div>
+        <div class="filter-group search-group">
+          <label for="buscador">Buscar</label>
+          <input type="text" id="buscador" placeholder="Buscar producto o categoría">
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Catálogo profesional</h2>
+          <span id="productos-count">0 productos</span>
+        </div>
+        <div id="productos-grid" class="productos-grid"></div>
+      </section>
+
+          <footer class="global-footer">
+      <div class="footer-inner">
+        <div class="footer-columns">
+          <div class="footer-col">
+            <h4>Ayuda</h4>
+            <ul>
+              <li><a href="./faq.html">Preguntas frecuentes</a></li>
+              <li><a href="mailto:soporte@smartlunch.example">Contáctanos</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>Legal</h4>
+            <ul>
+              <li><a href="./terminos.html">Términos y condiciones</a></li>
+              <li><a href="./privacidad.html">Política de privacidad</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-right">¿Necesitas ayuda inmediata? Escríbenos a <a href="mailto:soporte@smartlunch.example">soporte@smartlunch.example</a></div>
+      </div>
+    </footer>
+    </main>
+
+  </div>
+
+  <script src="./variables.js"></script>
+  <script src="./script.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,163 @@
+DOCUMENTACIÓN TÉCNICA Y FUNCIONAL DE LA WEB SMARTLUNCH
+=======================================================
+
+1. VISIÓN GENERAL FUNCIONAL
+La web SmartLunch funciona como una tienda online demo, pensada para mostrar cómo sería una experiencia completa de compra en una plataforma moderna. Permite ver productos, agregarlos al carrito, filtrarlos, guardar favoritos, iniciar sesión con un usuario simulado y completar un checkout con distintos métodos de pago.
+
+El objetivo principal no es manejar pagos reales, sino replicar la experiencia visual y lógica de una tienda digital en un entorno local y simple.
+
+2. FLUJO FUNCIONAL DE LA WEB
+2.1. Carga inicial de la tienda
+Cuando la página se abre, la aplicación carga la interfaz desde index.html. Luego, el script principal en script.js se encarga de ejecutar la lógica inicial para:
+- leer los productos desde database/productos.json,
+- mostrar esos productos en pantalla,
+- inicializar el carrito y los favoritos,
+- preparar los filtros y la navegación.
+
+2.2. Experiencia del usuario
+Un usuario puede:
+- ver el catálogo de productos,
+- buscar y filtrar por categoría o rango de precio,
+- agregar productos al carrito,
+- abrir el carrito desde el botón superior,
+- cambiar cantidades o eliminar productos,
+- elegir un método de pago,
+- confirmar una compra simulada.
+
+2.3. Gestión del checkout
+Al hacer clic en “Continuar al pago”, aparece un modal con distintas opciones: QR, Yape, Plin y Tarjeta. Cada método tiene una representación visual propia y un tiempo de procesamiento simulado para que parezca una transacción real.
+
+3. EXPLICACIÓN FUNCIONAL POR SECCIONES
+3.1. Página principal
+La página principal muestra el catálogo, los filtros y los productos disponibles. El usuario identifica cada producto por su imagen, nombre, precio, stock y botón de agregar al carrito.
+
+3.2. Carrito
+El carrito permite revisar los productos seleccionados, modificar la cantidad y calcular el total. Es una capa interactiva que se actualiza en tiempo real cada vez que se cambia un producto.
+
+3.3. Favoritos
+La sección de favoritos permite marcar productos para revisarlos después. Esto se gestiona desde el frontend con estados visuales y sin necesidad de un backend.
+
+3.4. Pagos simulados
+Los pagos no se procesan con una pasarela real. En su lugar, la web muestra una simulación visual con animación y un mensaje de estado. Esto ayuda a recrear el flujo de una compra real sin depender de servicios externos.
+
+4. EXPLICACIÓN TÉCNICA DEL CÓDIGO
+4.1. Estructura de archivos
+- index.html: contiene la estructura base de la interfaz, incluyendo el catálogo, el carrito, los botones y los modales.
+- style.css: define todos los estilos visuales. Aquí se controlan colores, tipografías, botones, sombras, espaciados, diseño responsive y modo oscuro.
+- script.js: contiene la lógica funcional de la aplicación. Aquí se manejan productos, carrito, filtros, checkout, pagos simulados y persistencia de datos.
+- variables.js: sirve como archivo complementario para guardar valores auxiliares, referencias y variables compartidas.
+- database/productos.json: almacena los productos en formato JSON.
+- database/usuarios.json: almacena usuarios de prueba para el login.
+- img/ e imagenes/: contienen los recursos visuales usados en la tienda.
+
+4.2. Cómo se cargan los productos
+El flujo técnico para cargar productos es el siguiente:
+1. El navegador carga index.html.
+2. El archivo script.js se ejecuta.
+3. Desde script.js se realiza una lectura del archivo JSON de productos usando fetch o una lógica equivalente según el entorno.
+4. Los datos se transforman en objetos JavaScript.
+5. El contenido se renderiza dinámicamente en el DOM para crear las tarjetas de producto.
+
+Esto permite que los productos no estén escritos manualmente en HTML, sino que se generen desde datos externos. Es una práctica típica en aplicaciones web modernas.
+
+4.3. Cómo se guardan los datos
+La aplicación usa LocalStorage del navegador para guardar el estado de la web sin backend.
+
+Datos que se guardan:
+- carrito: productos agregados por el usuario,
+- pedidos: compras confirmadas,
+- usuarios activos o sesión actual,
+- datos de preferencia visual como modo oscuro si aplica.
+
+El proceso general es:
+- se obtiene un valor desde localStorage,
+- se transforma a un objeto o arreglo JavaScript,
+- se modifica durante la interacción del usuario,
+- se vuelve a guardar con setItem.
+
+Esto hace que la información persista aunque la página se recargue.
+
+4.4. Cómo se cargan los datos guardados
+Cada vez que la web se inicia o se actualiza, el script revisa si existen valores guardados en LocalStorage. Si los encuentra, los carga y reconstruye la interfaz con esos datos.
+
+Ejemplo de flujo:
+- se carga el carrito,
+- se calcula el número de productos en el badge,
+- se actualiza el modal del carrito,
+- se muestra el estado actual al usuario.
+
+4.5. Cómo funciona el carrito
+El carrito se maneja con un arreglo en JavaScript. Cada producto agregado tiene información como:
+- nombre,
+- precio,
+- cantidad.
+
+Cuando el usuario añade un producto:
+- se busca si ya existe en el carrito,
+- si existe, se incrementa la cantidad,
+- si no existe, se añade como un nuevo elemento.
+
+Luego, se actualiza la interfaz para reflejar el cambio.
+
+4.6. Cómo funciona el checkout
+El flujo del checkout se desarrolla así:
+1. El usuario pulsa “Continuar al pago”.
+2. Se activa un modal con opciones de pago.
+3. El script detecta el método elegido por el usuario.
+4. Se valida la información necesaria, por ejemplo el número de tarjeta si se selecciona Tarjeta.
+5. Se inicia una animación de procesamiento.
+6. Después de un tiempo simulado, la compra se confirma.
+7. Se guardan los datos del pedido y se vacía el carrito.
+
+4.7. Cómo se controla el estilo visual
+El diseño se gestiona en style.css con reglas CSS. Aquí se definen:
+- colores principales,
+- fondos,
+- botones,
+- bordes,
+- sombras,
+- tamaños,
+- layout responsive,
+- modo oscuro.
+
+Por ejemplo:
+- los colores del tema se asignan mediante variables CSS,
+- las tarjetas de producto usan clases específicas,
+- los modales reciben estilos propios,
+- el modo oscuro cambia el fondo y el contraste de textos.
+
+4.8. Cómo se cambian los colores y el aspecto visual
+Para cambiar colores, normalmente se editan variables en :root dentro de style.css. Estas variables actúan como base del diseño y hacen más fácil mantener el tema.
+
+Ejemplo conceptual:
+- --accent define el color principal de botones y enlaces,
+- --surface define el fondo de las tarjetas,
+- --text define el color del texto principal,
+- --border define los bordes.
+
+Si se cambia una variable, se actualiza la apariencia de varios elementos al mismo tiempo.
+
+4.9. Cómo se diferencian los métodos de pago
+Cada método tiene su propia lógica visual:
+- QR: muestra un bloque simulado con patrón tipo código QR.
+- Yape y Plin: muestran una interfaz tipo app móvil con el monto y el estado de confirmación.
+- Tarjeta: muestra una tarjeta simulada y una animación de validación.
+
+Esto se logra con HTML generado dinámicamente desde JavaScript y estilos CSS específicos para cada estado.
+
+5. PUNTOS TÉCNICOS IMPORTANTES
+5.1. Uso de DOM dinámico
+El contenido no siempre está escrito estáticamente en HTML. Muchas secciones se crean con JavaScript insertando elementos en el DOM.
+
+5.2. Separación de responsabilidades
+- HTML define la estructura.
+- CSS define la presentación.
+- JavaScript define el comportamiento.
+
+Esta separación es importante para mantener el proyecto ordenado y escalable.
+
+5.3. Simulación en lugar de integración real
+La aplicación no usa un backend real ni una pasarela de pago verdadera. Todo está diseñado para simular el proceso de compra de forma visual y pedagógica.
+
+6. RESUMEN TÉCNICO FINAL
+SmartLunch está construida como una web frontend simple, con HTML para la estructura, CSS para el diseño y JavaScript para la lógica. Los productos se cargan desde un archivo JSON, el estado del usuario se guarda con LocalStorage y el checkout se simula con modales y animaciones visuales. La arquitectura es sencilla, fácil de entender y adecuada para demostrar cómo funciona una tienda online básica en el navegador.

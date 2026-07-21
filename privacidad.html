@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <script>
+    (function() {
+      try {
+        const saved = localStorage.getItem('smartLunchTema') || 'claro';
+        const isDark = saved === 'oscuro';
+        document.documentElement.classList.toggle('theme-dark', isDark);
+        document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+        document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+        document.documentElement.style.backgroundColor = isDark ? '#020617' : '#f3f4f6';
+        document.body && (document.body.style.backgroundColor = isDark ? '#020617' : '#f3f4f6');
+      } catch (error) {}
+    })();
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartLunch | Política de privacidad</title>
+  <link rel="stylesheet" href="./style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <aside class="sidebar">
+      <div class="logo"><img src="./img/SmartLunch.png" class="logo-sidebar" alt="SmartLunch"> <span>SmartLunch</span></div>
+      <ul>
+        <li><a href="./index.html" data-module="inicio"></a></li>
+        <li><a href="./favoritos.html" data-module="favoritos"></a></li>
+        <li><a href="./historial.html" data-module="historial"></a></li>
+        <li><a href="./configuracion.html" data-module="configuracion"></a></li>
+        <li><a href="./intranet.html" data-module="intranet"></a></li>
+        <li><a href="#" data-action="logout" onclick="cerrarSesion(); return false;"></a></li>
+      </ul>
+      <div class="sidebar-footer">
+        <div class="footer-brand">
+          <img class="footer-logo" alt="">
+          <span data-config="siteName"></span>
+        </div>
+        <span class="footer-version" data-config="footerVersion"></span>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="main-content">
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Privacidad</p>
+              <h2>Política de privacidad</h2>
+            </div>
+          </div>
+          <p class="panel-subtitle">Entiende cómo SmartLunch gestiona tus datos, qué usamos y qué derechos tienes sobre tu información personal.</p>
+          <div class="section-note">
+            <strong>Protegemos tus datos:</strong> tu información se usa únicamente para mejorar tu experiencia y procesar pedidos con seguridad.
+          </div>
+          <div class="info-grid">
+            <article class="card info-card">
+              <h3>Tratamiento de datos</h3>
+              <p>Recopilamos información para procesar pedidos, enviar confirmaciones y mejorar la experiencia de usuario. Los datos sensibles de pago se gestionan de forma segura y no se almacenan en texto plano.</p>
+            </article>
+            <article class="card info-card">
+              <h3>Uso de cookies</h3>
+              <p>Usamos cookies y almacenamiento local para guardar preferencias de sesión, temas y configuraciones de usuario. Esto nos permite ofrecer una experiencia más fluida al volver a la aplicación.</p>
+            </article>
+            <article class="card info-card">
+              <h3>Compartición de información</h3>
+              <p>No vendemos tu información a terceros. Pueden compartirse datos básicos con servicios de entrega cuando sean necesarios para completar tu pedido.</p>
+            </article>
+            <article class="card info-card">
+              <h3>Tus derechos</h3>
+              <p>Puedes solicitar la eliminación o actualización de tus datos solicitándolo a soporte. Respetamos tus derechos de privacidad y actuamos de acuerdo con las leyes aplicables.</p>
+            </article>
+          </div>
+        </section>
+      </div>
+      <footer class="global-footer">
+        <div class="footer-inner">
+          <div class="footer-columns">
+            <div class="footer-col">
+              <h4>Ayuda</h4>
+              <ul>
+                <li><a href="./faq.html">Preguntas frecuentes</a></li>
+                <li><a href="mailto:soporte@smartlunch.example">Contáctanos</a></li>
+              </ul>
+            </div>
+            <div class="footer-col">
+              <h4>Legal</h4>
+              <ul>
+                <li><a href="./terminos.html">Términos y condiciones</a></li>
+                <li><a href="./privacidad.html">Política de privacidad</a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="footer-right">¿Necesitas ayuda inmediata? Escríbenos a <a href="mailto:soporte@smartlunch.example">soporte@smartlunch.example</a></div>
+        </div>
+      </footer>
+    </main>
+  </div>
+  <script src="./variables.js"></script>
+  <script src="./script.js"></script>
+</body>
+</html>
