@@ -7,6 +7,7 @@ window.APP_CONFIG = {
     { key: 'inicio', label: 'Inicio', url: './index.html' },
     { key: 'favoritos', label: 'Favoritos', url: './favoritos.html' },
     { key: 'historial', label: 'Historial', url: './historial.html' },
+    { key: 'premium', label: 'Premium', icon: '⭐', url: './premium.html' },
     { key: 'configuracion', label: 'Configuración', url: './configuracion.html' },
     { key: 'intranet', label: 'Intranet', url: './intranet.html' }
   ],

@@ -8,7 +8,8 @@
     "rol": "administrador",
     "grado": "Admin",
     "correo": "admin@smartlunch.com",
-    "favoritos": []
+    "favoritos": [],
+    "plan": "normal"
   },
   {
     "id": 2,
@@ -19,6 +20,7 @@
     "rol": "usuario",
     "grado": "5° Secundaria A",
     "correo": "usuario@smartlunch.com",
-    "favoritos": []
+    "favoritos": [],
+    "plan": "normal"
   }
 ]

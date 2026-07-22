@@ -7,10 +7,44 @@ const STORAGE_KEYS = {
   tema: 'smartLunchTema'
 };
 
+const PREMIUM_DESCUENTO = 10;
+const PREMIUM_PRECIO = 12.9;
+
 const seedUsers = [
-  { id: 1, username: 'administrador', passwordHash: '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9', nombre: 'Administrador', email: 'admin@smartlunch.com', rol: 'administrador', grado: 'Admin', correo: 'admin@smartlunch.com', favoritos: [] },
-  { id: 2, username: 'usuario', passwordHash: 'dfa7a2273567dcd1efffb9a46308e91c20fa13c44c3441bc69cd6a7869b3f7fd', nombre: 'Usuario Demo', email: 'usuario@smartlunch.com', rol: 'usuario', grado: '5° Secundaria A', correo: 'usuario@smartlunch.com', favoritos: [] }
+  { id: 1, username: 'administrador', passwordHash: '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9', nombre: 'Administrador', email: 'admin@smartlunch.com', rol: 'administrador', grado: 'Admin', correo: 'admin@smartlunch.com', favoritos: [], plan: 'normal' },
+  { id: 2, username: 'usuario', passwordHash: 'dfa7a2273567dcd1efffb9a46308e91c20fa13c44c3441bc69cd6a7869b3f7fd', nombre: 'Usuario Demo', email: 'usuario@smartlunch.com', rol: 'usuario', grado: '5° Secundaria A', correo: 'usuario@smartlunch.com', favoritos: [], plan: 'normal' }
 ];
+
+function esPremium(user) {
+  return user?.plan === 'premium' && user?.rol !== 'administrador';
+}
+
+function calcularTotalesCarrito(user) {
+  const subtotal = carrito.reduce((sum, item) => sum + item.precio * item.cantidad, 0);
+  const descuento = esPremium(user) ? subtotal * (PREMIUM_DESCUENTO / 100) : 0;
+  return { subtotal, descuento, total: subtotal - descuento };
+}
+
+function obtenerDescuentoPedido(pedido) {
+  const descuento = Number(pedido?.descuentoPremium);
+  return descuento > 0 ? descuento : 0;
+}
+
+function htmlDescuentoPremiumPedido(pedido, detallado = false) {
+  const descuento = obtenerDescuentoPedido(pedido);
+  if (!descuento) return '';
+
+  if (detallado) {
+    const subtotal = Number(pedido.total) + descuento;
+    return `
+      <div class="history-meta history-premium">
+        <span><strong>Subtotal:</strong> S/ ${subtotal.toFixed(2)}</span>
+        <span class="premium-note"><strong>Descuento Premium -${PREMIUM_DESCUENTO}%:</strong> -S/ ${descuento.toFixed(2)}</span>
+      </div>`;
+  }
+
+  return `<span class="premium-note">Premium -${PREMIUM_DESCUENTO}%: ahorraste S/ ${descuento.toFixed(2)}</span>`;
+}
 
 const seedProducts = [
   { id: 1, nombre: 'Sándwich de pollo', precio: 6, categoria: 'sandwich', stock: 20, imagen: './imagenes/Sandwitch1.jpg', estado: 'activo', activo: true },
@@ -192,8 +226,23 @@ async function loadSeedData() {
   }
 
   const users = getUsers();
+  let usersActualizados = false;
+  users.forEach(user => {
+    if (!user.plan) {
+      user.plan = 'normal';
+      usersActualizados = true;
+    }
+  });
+  if (usersActualizados) saveUsers(users);
+
+  const currentUser = getCurrentUser();
+  if (currentUser && !currentUser.plan) {
+    const match = users.find(user => user.username === currentUser.username);
+    if (match) saveCurrentUser({ ...currentUser, plan: match.plan || 'normal' });
+  }
+
   if (!users.some(user => user.username === 'administrador')) {
-    saveUsers([...users, { id: Date.now(), username: 'administrador', passwordHash: await hashPassword('admin123'), nombre: 'Administrador', email: 'admin@smartlunch.com', rol: 'administrador', grado: 'Admin', correo: 'admin@smartlunch.com', favoritos: [] }]);
+    saveUsers([...users, { id: Date.now(), username: 'administrador', passwordHash: await hashPassword('admin123'), nombre: 'Administrador', email: 'admin@smartlunch.com', rol: 'administrador', grado: 'Admin', correo: 'admin@smartlunch.com', favoritos: [], plan: 'normal' }]);
   }
 
   const products = getProducts();
@@ -243,8 +292,9 @@ function actualizarEstadoAdmin() {
 function redirectIfNeeded() {
   const page = getPageName();
   const user = getCurrentUser();
-  const protectedPages = ['index.html', 'favoritos.html', 'historial.html', 'configuracion.html', 'intranet.html', 'quiosco.html'];
+  const protectedPages = ['index.html', 'favoritos.html', 'historial.html', 'premium.html', 'configuracion.html', 'intranet.html', 'quiosco.html'];
   const adminPages = ['intranet.html', 'quiosco.html'];
+  const userOnlyPages = ['premium.html'];
 
   if (page === 'login.html') {
     if (user) {
@@ -260,6 +310,11 @@ function redirectIfNeeded() {
 
   if (adminPages.includes(page) && user?.rol !== 'administrador') {
     window.location.href = './index.html';
+    return;
+  }
+
+  if (userOnlyPages.includes(page) && user?.rol === 'administrador') {
+    window.location.href = './intranet.html';
   }
 }
 
@@ -272,6 +327,11 @@ function llenarSidebar() {
       intranetItem.style.display = currentUser?.rol === 'administrador' ? '' : 'none';
     }
 
+    const premiumItem = ul.querySelector('a[href="./premium.html"]')?.closest('li');
+    if (premiumItem) {
+      premiumItem.style.display = currentUser?.rol === 'administrador' ? 'none' : '';
+    }
+
     const links = ul.querySelectorAll('a');
     links.forEach(link => {
       const href = link.getAttribute('href');
@@ -281,6 +341,8 @@ function llenarSidebar() {
         link.innerHTML = `${config.modules?.find(m => m.key === 'favoritos')?.icon || '⭐'} ${config.modules?.find(m => m.key === 'favoritos')?.label || 'Favoritos'}`;
       } else if (href === './historial.html') {
         link.innerHTML = `${config.modules?.find(m => m.key === 'historial')?.icon || '📋'} ${config.modules?.find(m => m.key === 'historial')?.label || 'Historial'}`;
+      } else if (href === './premium.html') {
+        link.innerHTML = `${config.modules?.find(m => m.key === 'premium')?.icon || '⭐'} ${config.modules?.find(m => m.key === 'premium')?.label || 'Premium'}`;
       } else if (href === './configuracion.html') {
         link.innerHTML = `${config.modules?.find(m => m.key === 'configuracion')?.icon || '⚙️'} ${config.modules?.find(m => m.key === 'configuracion')?.label || 'Configuración'}`;
       } else if (href === './intranet.html') {
@@ -352,7 +414,8 @@ async function registrarUsuario(username, password, email) {
     rol: 'usuario',
     grado: 'Sin definir',
     correo: email,
-    favoritos: []
+    favoritos: [],
+    plan: 'normal'
   };
   users.push(nuevoUsuario);
   saveUsers(users);
@@ -437,9 +500,8 @@ function vaciarCarrito() {
 function actualizarCarrito() {
   const lista = document.getElementById('listaPedidos');
   const total = document.getElementById('total');
-  // actualizar el total si existe el elemento
+  const { total: totalCalculado } = calcularTotalesCarrito(getCurrentUser());
   if (total) {
-    const totalCalculado = carrito.reduce((sum, item) => sum + item.precio * item.cantidad, 0);
     total.textContent = totalCalculado.toFixed(2);
   }
 
@@ -481,8 +543,20 @@ function renderizarCarritoModal() {
   if (!contenedor || !total) return;
 
   contenedor.innerHTML = '';
-  const totalCalculado = carrito.reduce((sum, item) => sum + item.precio * item.cantidad, 0);
+  const user = getCurrentUser();
+  const { subtotal, descuento, total: totalCalculado } = calcularTotalesCarrito(user);
   total.textContent = totalCalculado.toFixed(2);
+
+  const notaPremium = document.getElementById('modal-premium-descuento');
+  if (notaPremium) {
+    if (descuento > 0) {
+      notaPremium.style.display = 'block';
+      notaPremium.textContent = `Premium -${PREMIUM_DESCUENTO}%: ahorras S/ ${descuento.toFixed(2)} (subtotal S/ ${subtotal.toFixed(2)})`;
+    } else {
+      notaPremium.style.display = 'none';
+      notaPremium.textContent = '';
+    }
+  }
 
   if (!carrito.length) {
     contenedor.innerHTML = '<div class="empty-state">Aún no tienes productos en el carrito.</div>';
@@ -533,6 +607,7 @@ function mostrarCarritoModal() {
         <div class="summary-left">
           <span>Total</span>
           <strong>S/ <span id="modal-cart-total">0.00</span></strong>
+          <p id="modal-premium-descuento" class="premium-note" style="display:none"></p>
         </div>
         <div class="summary-right">
           <button class="btn-primary" id="modal-checkout-button" type="button">Continuar al pago</button>
@@ -566,8 +641,11 @@ function iniciarCheckout() {
     return;
   }
 
-  const total = carrito.reduce((sum, item) => sum + item.precio * item.cantidad, 0);
   const user = getCurrentUser();
+  const { subtotal, descuento, total } = calcularTotalesCarrito(user);
+  const resumenDescuento = descuento > 0
+    ? `<p class="premium-note">Descuento Premium -${PREMIUM_DESCUENTO}%: -S/ ${descuento.toFixed(2)}</p>`
+    : '';
   const overlay = document.createElement('div');
   overlay.className = 'popup-dialog';
   overlay.innerHTML = `
@@ -598,6 +676,7 @@ function iniciarCheckout() {
           <span>Tarjeta</span>
         </button>
       </div>
+      <div id="payment-qr-preview" class="payment-qr-preview"></div>
       <div class="card-fields" style="display:none;margin-top:12px">
         <input type="text" id="card-number" placeholder="Número de tarjeta" maxlength="19" pattern="[0-9 ]*">
         <div style="display:flex;gap:8px;margin-top:8px">
@@ -608,7 +687,11 @@ function iniciarCheckout() {
       </div>
       <form class="form-stack" id="checkout-form">
         <input type="email" id="correo-boleta" placeholder="Correo para enviar la boleta" value="${user?.correo || user?.email || ''}">
-        <div class="payment-summary"><strong>Total:</strong> <span>S/ ${total.toFixed(2)}</span></div>
+        <div class="payment-summary">
+          ${descuento > 0 ? `<div><span>Subtotal:</span> <span>S/ ${subtotal.toFixed(2)}</span></div>` : ''}
+          ${resumenDescuento}
+          <div><strong>Total:</strong> <span>S/ ${total.toFixed(2)}</span></div>
+        </div>
         <p class="muted-text">No se aceptan cambios ni devoluciones una vez confirmado el pago.</p>
         <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
           <button class="btn-secondary" type="button" id="checkout-cancel-button">Cancelar</button>
@@ -626,12 +709,10 @@ function iniciarCheckout() {
     button.addEventListener('click', () => {
       overlay.querySelectorAll('.payment-option').forEach(item => item.classList.remove('selected'));
       button.classList.add('selected');
-      // show/hide card fields when Tarjeta selected
-      const metodo = button.dataset.method;
-      const cardFields = overlay.querySelector('.card-fields');
-      if (cardFields) cardFields.style.display = metodo === 'Tarjeta' ? 'block' : 'none';
+      actualizarVistaMetodoPago(overlay, total);
     });
   });
+  actualizarVistaMetodoPago(overlay, total);
   overlay.querySelector('#checkout-form').addEventListener('submit', function (event) {
     event.preventDefault();
     const metodo = overlay.querySelector('.payment-option.selected')?.dataset.method || 'QR';
@@ -661,6 +742,124 @@ function iniciarCheckout() {
   });
 }
 
+function hashSemillaQr(valor) {
+  const texto = String(valor ?? 'smartlunch');
+  let hash = 0;
+  for (let i = 0; i < texto.length; i++) {
+    hash = ((hash << 5) - hash) + texto.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash) || 1;
+}
+
+function pintarPatronFinderQr(grid, fila, col) {
+  for (let r = 0; r < 7; r++) {
+    for (let c = 0; c < 7; c++) {
+      const borde = r === 0 || r === 6 || c === 0 || c === 6;
+      const nucleo = r >= 2 && r <= 4 && c >= 2 && c <= 4;
+      grid[fila + r][col + c] = borde || nucleo;
+    }
+  }
+}
+
+function celdaReservadaQr(r, c, size) {
+  if (r <= 7 && c <= 7) return true;
+  if (r <= 7 && c >= size - 8) return true;
+  if (r >= size - 8 && c <= 7) return true;
+  if (r === 6 && c >= 8 && c <= size - 9) return true;
+  if (c === 6 && r >= 8 && r <= size - 9) return true;
+  if (r === size - 8 && c === 8) return true;
+  return false;
+}
+
+function crearMatrizQrSimulado(semilla = 1) {
+  const size = 21;
+  const grid = Array.from({ length: size }, () => Array(size).fill(false));
+
+  pintarPatronFinderQr(grid, 0, 0);
+  pintarPatronFinderQr(grid, 0, size - 7);
+  pintarPatronFinderQr(grid, size - 7, 0);
+
+  for (let i = 8; i <= size - 9; i++) {
+    grid[6][i] = i % 2 === 0;
+    grid[i][6] = i % 2 === 0;
+  }
+
+  grid[size - 8][8] = true;
+
+  let estado = semilla >>> 0;
+  const aleatorio = () => {
+    estado = (estado * 1664525 + 1013904223) >>> 0;
+    return estado / 0x100000000;
+  };
+
+  for (let r = 0; r < size; r++) {
+    for (let c = 0; c < size; c++) {
+      if (celdaReservadaQr(r, c, size)) continue;
+      grid[r][c] = aleatorio() > 0.52;
+    }
+  }
+
+  return grid;
+}
+
+function generarHtmlQrSimulado(semilla, opciones = {}) {
+  const { compacto = false, animar = false } = opciones;
+  const grid = crearMatrizQrSimulado(hashSemillaQr(semilla));
+  const modules = grid.length;
+  const quiet = 4;
+  const moduleSize = compacto ? 4 : 5;
+  const total = (modules + quiet * 2) * moduleSize;
+  let rects = '';
+
+  for (let r = 0; r < modules; r++) {
+    for (let c = 0; c < modules; c++) {
+      if (!grid[r][c]) continue;
+      rects += `<rect x="${(c + quiet) * moduleSize}" y="${(r + quiet) * moduleSize}" width="${moduleSize}" height="${moduleSize}"/>`;
+    }
+  }
+
+  const sizeAttr = compacto ? 132 : 180;
+  const animClass = animar ? ' qr-code-wrap--scan' : '';
+
+  return `
+    <div class="qr-code-wrap${animClass}">
+      <svg class="qr-code-svg" viewBox="0 0 ${total} ${total}" width="${sizeAttr}" height="${sizeAttr}" role="img" aria-label="Código QR simulado">
+        <rect width="${total}" height="${total}" fill="#ffffff"/>
+        <g fill="#111827">${rects}</g>
+      </svg>
+    </div>`;
+}
+
+function actualizarVistaMetodoPago(overlay, total) {
+  const metodo = overlay.querySelector('.payment-option.selected')?.dataset.method || 'QR';
+  const cardFields = overlay.querySelector('.card-fields');
+  const qrPreview = overlay.querySelector('#payment-qr-preview');
+
+  if (cardFields) {
+    cardFields.style.display = metodo === 'Tarjeta' ? 'block' : 'none';
+  }
+
+  if (!qrPreview) return;
+
+  if (metodo === 'QR') {
+    qrPreview.style.display = 'flex';
+    qrPreview.innerHTML = `
+      <div class="payment-qr-preview-inner">
+        ${generarHtmlQrSimulado(`pago-${total}`, { compacto: true })}
+        <div class="payment-qr-copy">
+          <p class="payment-qr-title">Escanea para pagar</p>
+          <p class="payment-qr-amount">S/ ${Number(total).toFixed(2)}</p>
+          <p class="muted-text">Código QR simulado SmartLunch</p>
+        </div>
+      </div>`;
+    return;
+  }
+
+  qrPreview.style.display = 'none';
+  qrPreview.innerHTML = '';
+}
+
 function obtenerContenidoProcesamientoPago(metodoPago, total) {
   const monto = `S/ ${Number(total).toFixed(2)}`;
 
@@ -668,14 +867,8 @@ function obtenerContenidoProcesamientoPago(metodoPago, total) {
     return `
       <div class="payment-processing">
         <div class="payment-visual payment-visual-qr">
-          <div class="qr-simulator" aria-label="Código QR simulado">
-            <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
-            <span></span><span class="qr-block"></span><span class="qr-block"></span><span class="qr-block"></span><span></span><span></span><span></span>
-            <span></span><span class="qr-block"></span><span class="qr-block"></span><span class="qr-block"></span><span></span><span></span><span></span>
-            <span></span><span class="qr-block"></span><span class="qr-block"></span><span class="qr-block"></span><span></span><span></span><span></span>
-            <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
-          </div>
-          <div class="payment-visual-caption">Escaneando QR para confirmar el pago</div>
+          ${generarHtmlQrSimulado(`${metodoPago}-${total}`, { animar: true })}
+          <div class="payment-visual-caption">Escanea el código QR para confirmar el pago</div>
           <div class="payment-amount-pill">${monto}</div>
         </div>
       </div>`;
@@ -724,7 +917,10 @@ function renderizarEstadoProcesandoPago(overlay, metodoPago, total) {
       ? 'Tu tarjeta está siendo verificada de forma segura.'
       : 'La app está confirmando la transferencia en segundos.';
 
-  overlay.querySelector('.popup-card').innerHTML = `
+  const popupCard = overlay?.querySelector('.popup-card');
+  if (!popupCard) return;
+
+  popupCard.innerHTML = `
     <div class="modal-header">
       <div>
         <p class="eyebrow">Procesando</p>
@@ -753,6 +949,7 @@ function procesarPago(total, overlay, metodoPago, correoDestino, cardInfo) {
     const user = getCurrentUser();
     const productos = getProducts();
     const pedidos = getPedidos();
+    const { descuento } = calcularTotalesCarrito(user);
 
     const metodoPagoTexto = metodoPago === 'Tarjeta' ? `Tarjeta • ${cardInfo?.masked || '****'}` : metodoPago;
 
@@ -766,6 +963,7 @@ function procesarPago(total, overlay, metodoPago, correoDestino, cardInfo) {
         imagen: getProducts().find(producto => producto.nombre === item.nombre)?.imagen || './img/SmartLunch.png'
       })),
       total: total.toFixed(2),
+      descuentoPremium: descuento > 0 ? descuento.toFixed(2) : null,
       fecha: new Date().toLocaleString(),
       estado: 'Pendiente',
       metodoPago: metodoPagoTexto,
@@ -787,24 +985,41 @@ function procesarPago(total, overlay, metodoPago, correoDestino, cardInfo) {
     overlay.remove();
 
     const receipt = document.createElement('div');
-    receipt.className = 'popup-dialog';
+    receipt.className = 'popup-dialog receipt-print';
     receipt.innerHTML = `
-      <div class="popup-card">
+      <div class="popup-card receipt-card">
         <h3>✅ Compra confirmada</h3>
         <div class="receipt">
           <p><strong>Cliente:</strong> ${pedido.usuario}</p>
           <p><strong>Fecha:</strong> ${pedido.fecha}</p>
+          ${obtenerDescuentoPedido(pedido) ? `<p class="premium-note"><strong>Descuento Premium:</strong> -S/ ${Number(pedido.descuentoPremium).toFixed(2)}</p>` : ''}
           <p><strong>Total:</strong> S/ ${pedido.total}</p>
           <p><strong>Método:</strong> ${pedido.metodoPago}</p>
           <p><strong>Productos:</strong> ${pedido.productos.join(', ')}</p>
         </div>
-        <div class="btn-row" style="margin-top:12px;">
-          <button class="btn-primary" type="button" onclick="window.print()">Imprimir boleta</button>
+        <div class="btn-row receipt-actions" style="margin-top:12px;">
+          <button class="btn-primary" type="button" onclick="imprimirBoleta(this)">Imprimir boleta</button>
           <button class="btn-secondary" type="button" onclick="this.closest('.popup-dialog').remove(); window.location.href='./index.html'">Cerrar</button>
         </div>
       </div>`;
     document.body.appendChild(receipt);
   }, demoraMs);
+}
+
+function imprimirBoleta(button) {
+  const receipt = button?.closest('.receipt-print');
+  if (!receipt) {
+    window.print();
+    return;
+  }
+
+  document.body.classList.add('printing-receipt');
+  const cleanup = () => {
+    document.body.classList.remove('printing-receipt');
+    window.removeEventListener('afterprint', cleanup);
+  };
+  window.addEventListener('afterprint', cleanup);
+  window.print();
 }
 
 function mostrarPopupInformativo(titulo, mensaje) {
@@ -1085,6 +1300,7 @@ function renderizarHistorial() {
         <span>${pedido.fecha}</span>
         <span>Total: S/ ${Number(pedido.total).toFixed(2)}</span>
       </div>
+      ${obtenerDescuentoPedido(pedido) ? `<div class="history-meta">${htmlDescuentoPremiumPedido(pedido)}</div>` : ''}
       <div class="history-products">
         ${productos.length ? productos.map(item => `<span class="history-product-chip"><img src="${item.imagen}" alt="${item.nombre}">${item.nombre}</span>`).join('') : pedido.productos.map(item => `<span class="history-product-chip">${item}</span>`).join('')}
       </div>
@@ -1108,6 +1324,7 @@ function abrirDetallePedido(pedido) {
         <span class="history-status ${pedido.estado === 'Aceptado' ? 'approved' : 'pending'}">${pedido.estado === 'Aceptado' ? 'Aprobado' : 'Pendiente'}</span>
       </div>
       <p class="muted-text">${pedido.fecha}</p>
+      ${htmlDescuentoPremiumPedido(pedido, true)}
       <div class="history-meta">
         <span><strong>Total:</strong> S/ ${Number(pedido.total).toFixed(2)}</span>
         <span><strong>Pedido:</strong> #${pedido.id.slice(-4)}</span>
@@ -1132,9 +1349,15 @@ function abrirDetallePedido(pedido) {
 function renderizarConfiguracion() {
   const user = getCurrentUser();
   if (!user) return;
-  document.getElementById('perfil-nombre').textContent = user.nombre || user.username;
-  document.getElementById('perfil-rol').textContent = user.rol === 'administrador' ? 'Administrador' : 'Usuario';
-  document.getElementById('perfil-correo').textContent = user.correo || user.email || '-';
+
+  const perfilNombre = document.getElementById('perfil-nombre');
+  const perfilRol = document.getElementById('perfil-rol');
+  const perfilCorreo = document.getElementById('perfil-correo');
+  if (!perfilNombre && !perfilRol && !perfilCorreo) return;
+
+  if (perfilNombre) perfilNombre.textContent = user.nombre || user.username;
+  if (perfilRol) perfilRol.textContent = user.rol === 'administrador' ? 'Administrador' : 'Usuario';
+  if (perfilCorreo) perfilCorreo.textContent = user.correo || user.email || '-';
   const avatar = document.getElementById('avatar-inicial');
   if (avatar) {
     avatar.textContent = (user.nombre || user.username || 'U').charAt(0).toUpperCase();
@@ -1143,6 +1366,235 @@ function renderizarConfiguracion() {
   if (correoInput && !correoInput.value) {
     correoInput.value = user.correo || user.email || '';
   }
+
+  const premiumBadge = document.getElementById('premium-badge');
+  const esUsuarioPremium = esPremium(user);
+
+  if (premiumBadge) {
+    premiumBadge.style.display = esUsuarioPremium ? 'inline-flex' : 'none';
+  }
+}
+
+function renderizarPremium() {
+  const user = getCurrentUser();
+  if (!user || user.rol === 'administrador') return;
+
+  const esUsuarioPremium = esPremium(user);
+  const badge = document.getElementById('premium-page-badge');
+  const titulo = document.getElementById('premium-page-titulo');
+  const estado = document.getElementById('premium-page-estado');
+  const precio = document.getElementById('premium-page-precio');
+  const btn = document.getElementById('btn-premium-toggle');
+  const planCard = document.querySelector('.premium-plan-card');
+
+  if (precio) precio.textContent = PREMIUM_PRECIO.toFixed(2);
+
+  if (badge) badge.style.display = esUsuarioPremium ? 'inline-flex' : 'none';
+  if (titulo) titulo.textContent = esUsuarioPremium ? 'Tu plan Premium' : 'Hazte Premium';
+  if (estado) {
+    estado.textContent = esUsuarioPremium
+      ? `Disfrutas ${PREMIUM_DESCUENTO}% de descuento automático en todos tus pedidos.`
+      : `Suscripción mensual simulada por S/ ${PREMIUM_PRECIO.toFixed(2)}. Ahorra en cada compra.`;
+  }
+  if (btn) {
+    btn.textContent = esUsuarioPremium ? 'Cancelar Premium' : 'Hazte Premium';
+    btn.className = esUsuarioPremium ? 'btn-secondary' : 'btn-primary';
+  }
+  if (planCard) {
+    planCard.classList.toggle('premium-plan-active', esUsuarioPremium);
+  }
+}
+
+function actualizarVistasPremium() {
+  renderizarConfiguracion();
+  renderizarPremium();
+  actualizarCarrito();
+}
+
+function activarPremiumPlan() {
+  const user = getCurrentUser();
+  if (!user || user.rol === 'administrador') return false;
+
+  const users = getUsers();
+  const index = users.findIndex(item => item.username === user.username || item.id === user.id);
+  if (index === -1) return false;
+
+  users[index].plan = 'premium';
+  saveUsers(users);
+  saveCurrentUser({ ...user, plan: 'premium' });
+  actualizarVistasPremium();
+  return true;
+}
+
+function confirmarPagoPremiumDesdeModal(overlay, total) {
+  const metodo = overlay.querySelector('.payment-option.selected')?.dataset.method || 'QR';
+  let cardInfo = null;
+
+  if (metodo === 'Tarjeta') {
+    const cardNumberRaw = (overlay.querySelector('#premium-card-number')?.value || '').replace(/\s+/g, '');
+    if (!cardNumberRaw || cardNumberRaw.length < 12) {
+      alert('Por favor ingresa un número de tarjeta válido.');
+      return;
+    }
+    const last4 = cardNumberRaw.slice(-4);
+    cardInfo = { masked: '**** **** **** ' + last4, last4 };
+  }
+
+  procesarPagoPremium(total, overlay, metodo, cardInfo);
+}
+
+function abrirPagoPremium() {
+  const user = getCurrentUser();
+  if (!user || user.rol === 'administrador' || esPremium(user)) return;
+
+  const total = PREMIUM_PRECIO;
+  const overlay = document.createElement('div');
+  overlay.className = 'popup-dialog';
+  overlay.innerHTML = `
+    <div class="popup-card">
+      <div class="modal-header">
+        <div>
+          <p class="eyebrow">Suscripción</p>
+          <h3>Hazte Premium</h3>
+        </div>
+        <button type="button" class="modal-close" aria-label="Cerrar pago">×</button>
+      </div>
+      <p>Elige un método de pago para activar Premium por 1 mes.</p>
+      <div class="payment-methods">
+        <button class="payment-option selected" type="button" data-method="QR">
+          <span class="payment-icon">QR</span>
+          <span>Pago QR</span>
+        </button>
+        <button class="payment-option" type="button" data-method="Yape">
+          <span class="payment-icon">Yape</span>
+          <span>Yape</span>
+        </button>
+        <button class="payment-option" type="button" data-method="Plin">
+          <span class="payment-icon">Plin</span>
+          <span>Plin</span>
+        </button>
+        <button class="payment-option" type="button" data-method="Tarjeta">
+          <span class="payment-icon">Tarjeta</span>
+          <span>Tarjeta</span>
+        </button>
+      </div>
+      <div id="payment-qr-preview" class="payment-qr-preview"></div>
+      <div class="card-fields" style="display:none;margin-top:12px">
+        <input type="text" id="premium-card-number" placeholder="Número de tarjeta" maxlength="19">
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <input type="text" id="premium-card-name" placeholder="Nombre en tarjeta" style="flex:1">
+          <input type="text" id="premium-card-expiry" placeholder="MM/AA" style="width:90px">
+          <input type="text" id="premium-card-cvc" placeholder="CVC" style="width:80px">
+        </div>
+      </div>
+      <form class="form-stack" id="premium-checkout-form" novalidate>
+        <input type="email" id="premium-correo" placeholder="Correo para la boleta (opcional)">
+        <div class="payment-summary">
+          <div><span>Plan:</span> <span>SmartLunch Premium (1 mes)</span></div>
+          <div><span>Beneficio:</span> <span>${PREMIUM_DESCUENTO}% de descuento en pedidos</span></div>
+          <div><strong>Total:</strong> <span>S/ ${total.toFixed(2)}</span></div>
+        </div>
+        <p class="muted-text">Pago simulado. Al confirmar se activa Premium de inmediato.</p>
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+          <button class="btn-secondary" type="button" id="premium-cancel-button">Cancelar</button>
+          <button class="btn-primary" type="button" id="premium-pay-button">Pagar y activar</button>
+        </div>
+      </form>
+    </div>`;
+
+  document.body.appendChild(overlay);
+
+  const correoInput = overlay.querySelector('#premium-correo');
+  if (correoInput) correoInput.value = user.correo || user.email || '';
+
+  overlay.querySelector('.modal-close')?.addEventListener('click', () => overlay.remove());
+  overlay.addEventListener('click', event => { if (event.target === overlay) overlay.remove(); });
+  overlay.querySelector('#premium-cancel-button')?.addEventListener('click', () => overlay.remove());
+
+  overlay.querySelectorAll('.payment-option').forEach(button => {
+    button.addEventListener('click', () => {
+      overlay.querySelectorAll('.payment-option').forEach(item => item.classList.remove('selected'));
+      button.classList.add('selected');
+      actualizarVistaMetodoPago(overlay, total);
+    });
+  });
+  actualizarVistaMetodoPago(overlay, total);
+
+  const iniciarPago = () => confirmarPagoPremiumDesdeModal(overlay, total);
+  overlay.querySelector('#premium-pay-button')?.addEventListener('click', iniciarPago);
+  overlay.querySelector('#premium-checkout-form')?.addEventListener('submit', function (event) {
+    event.preventDefault();
+    iniciarPago();
+  });
+}
+
+function procesarPagoPremium(total, overlay, metodoPago, cardInfo) {
+  if (!window.confirm(`¿Confirmar pago de S/ ${total.toFixed(2)} para activar Premium?`)) {
+    return;
+  }
+
+  renderizarEstadoProcesandoPago(overlay, metodoPago, total);
+
+  const demoraMs = Math.floor(Math.random() * 2001) + 3000;
+  const metodoPagoTexto = metodoPago === 'Tarjeta' ? `Tarjeta • ${cardInfo?.masked || '****'}` : metodoPago;
+
+  window.setTimeout(() => {
+    try {
+      const activado = activarPremiumPlan();
+
+      if (!activado) {
+        alert('No se pudo activar Premium. Cierra sesión, vuelve a entrar e inténtalo otra vez.');
+        return;
+      }
+
+      const receipt = document.createElement('div');
+      receipt.className = 'popup-dialog';
+      receipt.innerHTML = `
+        <div class="popup-card">
+          <h3>⭐ Premium activado</h3>
+          <div class="receipt">
+            <p><strong>Plan:</strong> SmartLunch Premium</p>
+            <p><strong>Total pagado:</strong> S/ ${total.toFixed(2)}</p>
+            <p><strong>Método:</strong> ${metodoPagoTexto}</p>
+            <p><strong>Beneficio:</strong> ${PREMIUM_DESCUENTO}% de descuento en tus pedidos</p>
+          </div>
+          <div class="btn-row" style="margin-top:12px;">
+            <button class="btn-primary" type="button">¡Genial!</button>
+          </div>
+        </div>`;
+      receipt.querySelector('button').addEventListener('click', () => receipt.remove());
+      document.body.appendChild(receipt);
+    } catch (error) {
+      console.error(error);
+      alert('Ocurrió un error al activar Premium. Recarga la página e inténtalo de nuevo.');
+    } finally {
+      overlay.remove();
+    }
+  }, demoraMs);
+}
+
+function togglePremium() {
+  const user = getCurrentUser();
+  if (!user || user.rol === 'administrador') return;
+
+  if (esPremium(user)) {
+    if (!window.confirm('¿Cancelar tu plan Premium? Perderás el 10% de descuento en tus pedidos.')) {
+      return;
+    }
+
+    const users = getUsers();
+    const index = users.findIndex(item => item.username === user.username);
+    if (index === -1) return;
+
+    users[index].plan = 'normal';
+    saveUsers(users);
+    saveCurrentUser({ ...user, plan: 'normal' });
+    actualizarVistasPremium();
+    alert('Premium cancelado. Vuelves al plan normal.');
+    return;
+  }
+
+  abrirPagoPremium();
 }
 
 async function actualizarCorreo(event) {
@@ -1366,7 +1818,7 @@ async function crearUsuarioAdmin(event) {
     return;
   }
 
-  users.push({ id: Date.now(), username, passwordHash: await hashPassword(password), nombre: username, email, rol, correo: email, favoritos: [] });
+  users.push({ id: Date.now(), username, passwordHash: await hashPassword(password), nombre: username, email, rol, correo: email, favoritos: [], plan: 'normal' });
   saveUsers(users);
   document.getElementById('usuario-form').reset();
   cerrarModalUsuario();
@@ -1530,6 +1982,12 @@ function inicializarApp() {
     return;
   }
 
+  if (page === 'premium.html') {
+    renderizarPremium();
+    document.getElementById('btn-premium-toggle')?.addEventListener('click', togglePremium);
+    return;
+  }
+
   if (page === 'configuracion.html') {
     renderizarConfiguracion();
     document.getElementById('form-cambiar-correo')?.addEventListener('submit', actualizarCorreo);
@@ -1574,6 +2032,8 @@ window.restarProducto = restarProducto;
 window.eliminarProductoCarrito = eliminarProductoCarrito;
 window.agregarFavorito = agregarFavorito;
 window.cambiarTema = cambiarTema;
+window.togglePremium = togglePremium;
+window.imprimirBoleta = imprimirBoleta;
 window.manejarAccion = manejarAccion;
 window.cambiarModoRegistro = cambiarModoRegistro;
 window.cambiarModoLogin = cambiarModoLogin;

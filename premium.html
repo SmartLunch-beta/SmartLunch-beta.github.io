@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <style>
+    html.theme-dark { background: #020617; color: #f8fafc; }
+    html.theme-dark body { background: #020617; color: #f8fafc; }
+    html.theme-dark body::before { background: radial-gradient(circle at top left,rgba(96,165,250,.14),transparent 38%); }
+    html.theme-dark .product-card { background: #111827; color: #f8fafc; }
+  </style>
+  <script>
+    (function() {
+      try {
+        const saved = localStorage.getItem('smartLunchTema') || 'claro';
+        const isDark = saved === 'oscuro';
+        document.documentElement.classList.toggle('theme-dark', isDark);
+        document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+        document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+        document.documentElement.style.backgroundColor = isDark ? '#020617' : '#f3f4f6';
+        document.body && (document.body.style.backgroundColor = isDark ? '#020617' : '#f3f4f6');
+      } catch (error) {}
+    })();
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartLunch | Premium</title>
+  <link rel="stylesheet" href="./style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <aside class="sidebar">
+      <div class="logo"><img src="./img/SmartLunch.png" class="logo-sidebar" alt="SmartLunch"> <span>SmartLunch</span></div>
+      <ul>
+        <li><a href="./index.html" data-module="inicio"></a></li>
+        <li><a href="./favoritos.html" data-module="favoritos"></a></li>
+        <li><a href="./historial.html" data-module="historial"></a></li>
+        <li class="active"><a href="./premium.html" data-module="premium"></a></li>
+        <li><a href="./configuracion.html" data-module="configuracion"></a></li>
+        <li><a href="./intranet.html" data-module="intranet"></a></li>
+        <li><a href="#" data-action="logout" onclick="cerrarSesion(); return false;"></a></li>
+      </ul>
+      <div class="sidebar-footer">
+        <div class="footer-brand">
+          <img class="footer-logo" alt="">
+          <span data-config="siteName"></span>
+        </div>
+        <span class="footer-version" data-config="footerVersion"></span>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="main-content">
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Membresía</p>
+              <h2>SmartLunch Premium</h2>
+            </div>
+          </div>
+
+          <div class="premium-layout">
+            <article class="card premium-plan-card">
+              <span id="premium-page-badge" class="premium-badge" style="display:none">⭐ Plan activo</span>
+              <h3 id="premium-page-titulo">Hazte Premium</h3>
+              <p id="premium-page-estado" class="muted-text">Activa tu membresía y ahorra en cada pedido.</p>
+              <p class="premium-price">S/ <span id="premium-page-precio">12.90</span> <span class="premium-price-period">/ mes</span></p>
+              <ul class="premium-benefits-inline">
+                <li>10% de descuento en todos tus pedidos</li>
+                <li>Pago simulado con QR, Yape, Plin o Tarjeta</li>
+              </ul>
+              <button class="btn-primary" type="button" id="btn-premium-toggle">Hazte Premium</button>
+            </article>
+
+            <article class="card premium-benefits-card">
+              <h3>¿Qué incluye?</h3>
+              <ul class="premium-benefits-list">
+                <li><strong>Descuento automático</strong> — 10% en el total del carrito</li>
+                <li><strong>Sin cupones</strong> — se aplica solo por tener Premium activo</li>
+                <li><strong>Historial claro</strong> — tus pedidos muestran cuánto ahorraste</li>
+                <li><strong>Cancelación simple</strong> — puedes volver al plan normal cuando quieras</li>
+              </ul>
+            </article>
+          </div>
+        </section>
+      </div>
+
+      <footer class="global-footer">
+        <div class="footer-inner">
+          <div class="footer-columns">
+            <div class="footer-col">
+              <h4>Ayuda</h4>
+              <ul>
+                <li><a href="./faq.html">Preguntas frecuentes</a></li>
+                <li><a href="mailto:soporte@smartlunch.example">Contáctanos</a></li>
+              </ul>
+            </div>
+            <div class="footer-col">
+              <h4>Legal</h4>
+              <ul>
+                <li><a href="./terminos.html">Términos y condiciones</a></li>
+                <li><a href="./privacidad.html">Política de privacidad</a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="footer-right">¿Necesitas ayuda inmediata? Escríbenos a <a href="mailto:soporte@smartlunch.example">soporte@smartlunch.example</a></div>
+        </div>
+      </footer>
+    </main>
+  </div>
+
+  <script src="./variables.js"></script>
+  <script src="./script.js"></script>
+</body>
+</html>
